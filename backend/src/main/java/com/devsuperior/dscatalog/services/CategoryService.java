@@ -3,12 +3,12 @@ package com.devsuperior.dscatalog.services;
 import com.devsuperior.dscatalog.dto.CategoryDTO;
 import com.devsuperior.dscatalog.entites.Category;
 import com.devsuperior.dscatalog.repositories.CategotyRepository;
-import com.devsuperior.dscatalog.services.exceptions.EntityNotFoundException;
+import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,14 +23,14 @@ public class CategoryService {
     public List<CategoryDTO> findAll() {
         List<Category> list = categotyRepository.findAll();
 
-       return  list.stream().map(x -> new CategoryDTO(x)).collect(Collectors.toList());
+        return list.stream().map(x -> new CategoryDTO(x)).collect(Collectors.toList());
 
     }
 
     @Transactional(readOnly = true)
     public CategoryDTO findById(Long id) {
-        Optional<Category>optional = categotyRepository.findById(id);
-        Category entity = optional.orElseThrow(()-> new EntityNotFoundException("Entity not found"));
+        Optional<Category> optional = categotyRepository.findById(id);
+        Category entity = optional.orElseThrow(() -> new ResourceNotFoundException("Entity not found"));
 
         return new CategoryDTO(entity);
     }
@@ -41,5 +41,17 @@ public class CategoryService {
         entity.setName(dto.getName());
         entity = categotyRepository.save(entity);
         return new CategoryDTO(entity);
+    }
+
+    @Transactional
+    public CategoryDTO uptade(Long id, CategoryDTO dto) {
+        try {
+            Category entity = categotyRepository.getById(id);
+            entity.setName(dto.getName());
+            entity = categotyRepository.save(entity);
+            return new CategoryDTO(entity);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException("Id not found " + id);
+        }
     }
 }

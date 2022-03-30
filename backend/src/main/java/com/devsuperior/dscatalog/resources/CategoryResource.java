@@ -39,4 +39,10 @@ public class CategoryResource {
         return ResponseEntity.created(uri).body(dto);
     }
 
+    @PutMapping (value = "/{id}")
+    public ResponseEntity<CategoryDTO> uptade(@PathVariable Long id,@RequestBody CategoryDTO dto) {
+        dto = categoryService.uptade(id,dto);
+        return ResponseEntity.ok().body(dto);
+    }
+
 }
